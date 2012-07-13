@@ -26,10 +26,12 @@ presets:
 
   # TV shows
   tv:
-    # Generic TV settings
+    # Check if the TV show already exists locally
     exists_series: @DOWNLOADS_ROOT@/_TV
 
     # Fetch show details from The TV DB
+    #   and set the path and filename to something
+    #   appropriate
     thetvdb_lookup: yes
     set:
       content_filename: "{{ series_id }} - {{ ep_name|default('Unknown') }}  - {{ quality|upper }}"
@@ -44,7 +46,7 @@ presets:
 
   # Movies
   movies:
-    # Check if the movie already exists
+    # Check if the movie already exists locally
     exists_movie: @DOWNLOADS_ROOT@/_Movies
     seen_movies: loose
 
