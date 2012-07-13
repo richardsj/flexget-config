@@ -1,0 +1,107 @@
+presets:
+  # Applies to all sections
+  global:
+    # Files we're not interested in
+    content_filter:
+      # RAR is not an appropriate file format for BitTorrent
+      reject: "*.rar"
+
+  # If the decision is made to download, apply these settings
+  downloader:
+    # Send to Transmission
+    transmission:
+      netrc: /root/.netrc
+      path: @DOWNLOADS_ROOT@
+
+      # Remove Transmission entries when 'done'
+      removewhendone: yes
+
+      # Ensure Mac friendly filenames/paths
+      # 'pathscrub' not yet available??
+      #pathscrub: mac
+
+    # Use the Notify My Android API on new downloads
+    notifymyandroid:
+      apikey: @NMA_API_KEY@
+
+  # TV shows
+  tv:
+    # Generic TV settings
+    exists_series: @DOWNLOADS_ROOT@/_TV
+
+    # Fetch show details from The TV DB
+    thetvdb_lookup: yes
+    set:
+      content_filename: "{{ series_id }} - {{ ep_name|default('Unknown') }}  - {{ quality|upper }}"
+      path: "@DOWNLOADS_ROOT@/_TV/%(series_name)s/Season %(series_season)d/"
+
+    # Import TV series to download from thetvdb.com
+    import_series:
+      from:
+        thetvdb_favorites:
+          account_id: @TVDB_ID@
+          strip_dates: yes
+
+  # Movies
+  movies:
+    # Check if the movie already exists
+    exists_movie: @DOWNLOADS_ROOT@/_Movies
+    seen_movies: loose
+
+    # Set the download path for movies
+    set:                                                                                                               
+      path: @DOWNLOADS_ROOT@/_Movies   
+
+    # Set quality: only DVDRip or better and only up-to 720p 
+    #   (1080p pushes the 2008 MacMini a bit too hard)
+    quality: dvdrip-bluray <=720p
+
+    # Apply to the movie queue
+    movie_queue: yes
+
+    # Go out into the world and find torrents
+    #   for movies in the queue
+    discover:
+      what:
+        - emit_movie_queue: yes
+      from:
+        - torrentz
+      type: movies
+
+    # Don't download movies already rated 
+    #   (i.e. already seen)
+    crossmatch:
+      from:
+        - imdb_list:
+            list: ratings
+            user_id: @IMDB_ID@
+      fields:
+        - imdb_id
+      action: reject
+
+# Feeds
+feeds:
+  # Fetch titles from an IMDB watchlist and build the movie queue
+  IMDB-Watchlist:
+    imdb_list:
+      list: watchlist
+      user_id: @IMDB_ID@
+    accept_all: yes
+
+    # Add to the movie queue
+    queue_movies: yes
+
+  # Newly available Movies feed
+  Torrentz-Movies:
+    rss: http://torrentz.eu/feed_verified?q=movies
+    imdb_lookup: yes
+    preset:
+      - movies
+      - downloader
+
+  # Newly available TV shows feed
+  Torrentz-TV:
+    rss: http://torrentz.eu/feed_verified?q=tv
+    preset:
+      - tv
+      - downloader
