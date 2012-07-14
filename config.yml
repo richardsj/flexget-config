@@ -34,8 +34,8 @@ presets:
     #   appropriate
     thetvdb_lookup: yes
     set:
-      content_filename: "{{ series_id }} - {{ ep_name|default('Unknown') }}  - {{ quality|upper }}"
-      path: "@DOWNLOADS_ROOT@/_TV/%(series_name)s/Season %(series_season)d/"
+      content_filename: "{{ series_id }} - {{ ep_name|default('Unnamed')|replace(':', ' - ') }} - {{ quality|upper }}"
+      path: "@DOWNLOADS_ROOT@/_TV/{{ series_name|replace(':',' - ') }}/Season {{ series_season }}/"
 
     # Import TV series to download from thetvdb.com
     import_series:
